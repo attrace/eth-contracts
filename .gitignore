@@ -1,0 +1,11 @@
+node_modules
+
+#Hardhat files
+cache
+artifacts
+.env
+abi/
+.openzeppelin/
+devutils
+solc-*
+.vscode/
