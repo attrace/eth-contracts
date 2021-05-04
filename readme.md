@@ -1,20 +1,10 @@
-# Attrace contracts
+# Attrace Ethereum Contracts
 
 ## Development
 
 ### Intro
 
 Make sure to learn https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies
-
-### Console logging
-
-Uncomment import+usage before deploys.
-
-Example:
-```
-import "hardhat/console.sol";
-console.log("Changing greeting from '%s' to '%s'", greeting, _greeting);
-```
 
 ### Yarn users
 Use npm instead in this project
@@ -48,9 +38,22 @@ hh test --network localhost
 ### Create .env
 `.env` is not tracked in git
 
+Depending on environment, the scripts expect these files with the right settings when deploying to them.
+
+Before deploying, make sure you have the right .env loaded.
+
 ```
 cp env.example .env
 # edit .env now with the right config
+```
+
+### Console logging example
+
+> :warning: Uncomment these statements import+usage before deploys!
+
+```
+import "hardhat/console.sol";
+console.log("Changing greeting from '%s' to '%s'", greeting, _greeting);
 ```
 
 ## Deployment
