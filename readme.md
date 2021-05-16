@@ -1,6 +1,14 @@
-# Attrace Ethereum Contracts
+<h1 align="center">
+  <br>
+  <a href="https://attrace.com"><img src="https://attrace.com/images/attrace-logo.svg" alt="Markdownify" width="400"></a>
+  <br>
+  Attrace Ethereum Contracts
+  <br>
+</h1>
 
-This repository contains contracts deployed to mainnet ethereum.
+<p align="center">This repository contains contracts deployed to mainnet ethereum.</p>
+
+<p align="center">More information: <a href="https://attrace.com">https://attrace.com</a></p>
 
 ## Development
 
