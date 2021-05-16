@@ -20,7 +20,7 @@ npm i -g hardhat-shorthand
 ### Dev workflow
 ```
 # Running scripts
-hh run scripts/filename.js...  [--network hardhat|localhost|rinkeby|...]
+hh run --verbose scripts/filename.js...  [--network hardhat|localhost|rinkeby|...]
 
 # Running tests
 hh test
