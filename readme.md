@@ -70,7 +70,6 @@ The token starts as a fork of the Attrace classic network.
 
 Due to change in address structure (ed25519 => ethereum secp256k1), transfering the tokens will happen through a bridge.
 The bridge collects the relationship between classic network and ethereum addresses.
-The transfers are done by the deployers until snapshot state of migration point is reached.
 
 ## Etherscan verification
 
