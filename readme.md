@@ -74,7 +74,7 @@ Scripts are ran in a migration style and state of addresses and migrations shoul
 We maintain a markdown file per network. Where we paste all commands with output and reference addresses which successfully complete.
 
 -  Rinkeby deployment state [./rinkeby.md](./rinkeby.md)
--  Homestead (mainnet) deployment state [./homestead.md](./homestead.md)
+-  Mainnet deployment state [./mainnet.md](./mainnet.md)
 
 ## Attrace classic migration
 
