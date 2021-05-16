@@ -1,5 +1,7 @@
 # Attrace Ethereum Contracts
 
+This repository contains contracts deployed to mainnet ethereum.
+
 ## Development
 
 ### Intro
