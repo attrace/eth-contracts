@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://attrace.com"><img src="https://attrace.com/images/attrace-logo.svg" alt="Markdownify" width="400"></a>
+  <a href="https://attrace.com"><img src="https://attrace.com/images/attrace-logo.svg" alt="Attrace logo" width="400"></a>
   <br>
   Attrace Ethereum Contracts
   <br>
