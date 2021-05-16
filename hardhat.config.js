@@ -55,8 +55,15 @@ module.exports = {
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.ATTR_INFURA_KEY}`,
       accounts: { 
-        mnemonic: (process.env.ATTR_MNEMONIC || 'you have to set the env file see readme for detailed information')
+        mnemonic: (process.env.ATTR_MNEMONIC_RINKEBY || 'you have to set the env file see readme for detailed information')
       },
+    },
+    homestead: {
+      chainId: 1,
+      // url: `https://mainnet.infura.io/v3/${process.env.ATTR_INFURA_KEY}`, // Infura is regularly congested on mainnet deploys, we use alchemy instead.
+      url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ATTR_ALCHEMY_KEY}`,
+      accounts: [process.env.ATTR_HOMESTEAD_K1],
+      timeout: 600000, // 10 minutes delay gas time
     }
   }
 };

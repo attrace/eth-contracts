@@ -23,11 +23,10 @@ async function main() {
   // await hre.run('compile');
   const ATTRToken = await ethers.getContractFactory("ATTRToken");
   console.log({ ATTRToken });
-  console.log({ wlControllerAddr });
   const erc20 = await upgrades.deployProxy(ATTRToken, [wlControllerAddr]);
-  console.log({ erc20 });
+  console.log(erc20);
   const tx = await erc20.deployed();
-  console.log({ tx });
+  console.log(tx);
   console.log("erc20 deployed to:", erc20.address);
 }
 

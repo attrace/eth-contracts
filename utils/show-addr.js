@@ -8,6 +8,6 @@ if(fs.existsSync(__dirname+'/.env')) {
   }
 }
  
-const wallet = EthHdWallet.fromMnemonic(process.env.ATTR_MNEMONIC);
+const wallet = EthHdWallet.fromMnemonic(process.env.ATTR_MNEMONIC_RINKEBY);
 
 console.log(wallet.generateAddresses(10) );
