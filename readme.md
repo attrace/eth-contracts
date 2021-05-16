@@ -43,8 +43,9 @@ Depending on environment, the scripts expect these files with the right settings
 Before deploying, make sure you have the right .env loaded.
 
 ```
-cp env.example .env
-# edit .env now with the right config
+cat .env.shared >> .env
+cat .env.NETWORK >> .env
+# Now edit and fill out all missing values
 ```
 
 ### Console logging example
@@ -63,6 +64,7 @@ Scripts are ran in a migration style and state of addresses and migrations shoul
 We maintain a markdown file per network. Where we paste all commands with output and reference addresses which successfully complete.
 
 -  Rinkeby deployment state [./rinkeby.md](./rinkeby.md)
+-  Homestead (mainnet) deployment state [./homestead.md](./homestead.md)
 
 ## Attrace classic migration
 
