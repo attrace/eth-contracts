@@ -19,6 +19,7 @@
     "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
     "eth-hd-wallet": "^0.5.1",
+    "eth-lightwallet": "^4.0.0",
     "ethereum-waffle": "^3.3.0",
     "ethers": "^5.1.4",
     "fs-extra": "^7.0.1",

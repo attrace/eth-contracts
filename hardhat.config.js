@@ -25,12 +25,15 @@ task("accounts", "Prints the list of accounts", async () => {
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
+const muteWarningDummyKey = '0x0093fcae8b438679b003623ee92e6fe8ba7de543a71eda0eaf20296a25e07ba9';
+const muteWarningDummyMnemonic = 'you have to set the env file see readme for detailed information';
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
   solidity: {
-    version: "0.8.0",
+    version: "0.8.4",
     settings: {
       optimizer: {
         enabled: true,
@@ -55,16 +58,18 @@ module.exports = {
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.ATTR_INFURA_KEY}`,
       accounts: { 
-        mnemonic: (process.env.ATTR_MNEMONIC_RINKEBY || 'you have to set the env file see readme for detailed information')
+        mnemonic: (process.env.ATTR_RINKEBY_KEY_MNEMONIC || muteWarningDummyMnemonic)
       },
+      // accounts: [
+      //   process.env.ATTR_RINKEBY_KEY || muteWarningDummyKey,
+      // ],
     },
     mainnet: {
       chainId: 1,
       // url: `https://mainnet.infura.io/v3/${process.env.ATTR_INFURA_KEY}`, // Infura is regularly congested on mainnet deploys, we use alchemy instead.
       url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ATTR_ALCHEMY_KEY}`,
-      accounts: [process.env.ATTR_MAINNET_K1],
+      accounts: [process.env.ATTR_MAINNET_KEY || muteWarningDummyKey], // 0x0093f... is a random key to mute parser during development
       timeout: 600000, // 10 minutes delay gas time
     }
   }
 };
-
