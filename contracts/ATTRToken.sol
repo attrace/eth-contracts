@@ -14,6 +14,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 // -  Pre-DAO: the token is managed and improved by the Attrace project.
 // -  When DAO is achieved: the token will become owned by the DAO contracts, or if the DAO decides to lock the token, then it can do so by transferring ownership to a contract which can't be upgraded.
 contract ATTRToken is ERC20Upgradeable {
+
   // Accounts which can transfer out in the pre-listing period
   mapping(address => bool) private _preListingAddrWL;
 
@@ -33,7 +34,7 @@ contract ATTRToken is ERC20Upgradeable {
     __ERC20_init("Attrace", "ATTR");
     _mint(msg.sender, 10 ** 27); // 1000000000000000000000000000 aces, 1,000,000,000 ATTR
     _wlController = address(preListWlController);
-    _wlDisabledAt = 1624399200; // June 23 2021
+    _wlDisabledAt = uint64(1624399200); // June 23 2021
   }
 
   // Hook into openzeppelin's ERC20Upgradeable flow to support golive requirements
@@ -41,27 +42,22 @@ contract ATTRToken is ERC20Upgradeable {
     super._beforeTokenTransfer(from, to, amount);
 
     // When not yet released, verify that the sender is white-listed.
-    if(_wlDisabledAt > block.timestamp) {
-      require(_preListingAddrWL[from] == true, "not yet tradeable");
-    }
+    require(block.timestamp >= _wlDisabledAt || _preListingAddrWL[from] == true, "not yet tradeable");
 
     // If we reach this, the token is already released and we verify the transfer rules which enforce locking and vesting.
-    if(transferRules[from].tokens > 0) {
-      uint lockedTokens = calcBalanceLocked(from);
-      uint balanceUnlocked = super.balanceOf(from) - lockedTokens;
-      require(amount <= balanceUnlocked, "transfer rule violation");
-    }
+    require(transferRules[from].tokens == 0 || amount <= super.balanceOf(from) - calcBalanceLocked(from), "transfer rule violation");
+
+    if (transferRules[from].outboundVestingMonths == 0 && transferRules[from].outboundTimeLockMonths == 0) return;
 
     // If we reach this, the transfer is successful.
     // Check if we should lock/vest the recipient of the tokens.
-    if(transferRules[from].outboundVestingMonths > 0 || transferRules[from].outboundTimeLockMonths > 0) {
-      // We don't support multiple rules, so recipient should not have vesting rules yet.
-      require(transferRules[to].tokens == 0, "unsupported");
-      transferRules[to].timeLockMonths = transferRules[from].outboundTimeLockMonths;
-      transferRules[to].vestingMonths = transferRules[from].outboundVestingMonths;
-      transferRules[to].tokens = uint96(amount);
-      transferRules[to].activationTime = uint40(block.timestamp);
-    }
+    // We don't support multiple rules, so recipient should not have vesting rules yet.
+    require(transferRules[to].tokens == 0, "unsupported");
+
+    transferRules[to].timeLockMonths = transferRules[from].outboundTimeLockMonths;
+    transferRules[to].vestingMonths = transferRules[from].outboundVestingMonths;
+    transferRules[to].tokens = uint96(amount);
+    transferRules[to].activationTime = uint40(block.timestamp);
   }
 
   // To support listing some addresses can be allowed transfers pre-listing.
@@ -113,43 +109,37 @@ contract ATTRToken is ERC20Upgradeable {
   }
 
   // Calculate how many tokens are still locked for a holder 
-  function calcBalanceLocked(address from) private view returns (uint) {
+  function calcBalanceLocked(address from) private view returns (uint256) {
     // When no activation time is defined, the moment of listing is used.
-    uint activationTime = (transferRules[from].activationTime == 0 ? _wlDisabledAt : transferRules[from].activationTime);
+    uint256 activationTime = transferRules[from].activationTime == 0
+      ? _wlDisabledAt
+      : transferRules[from].activationTime;
 
     // First check the time lock
-    uint secondsLocked;
-    if(transferRules[from].timeLockMonths > 0) {
-      secondsLocked = (transferRules[from].timeLockMonths * (30 days));
-      if(activationTime+secondsLocked >= block.timestamp) {
-        // All tokens are still locked
-        return transferRules[from].tokens;
-      }
-    }
+    uint256 secondsLocked = transferRules[from].timeLockMonths * 30 days;
+
+    if (secondsLocked && (activationTime + secondsLocked >= block.timestamp)) return transferRules[from].tokens; // All tokens are still locked
+
+    if (transferRules[from].vestingMonths == 0) return 0; // No tokens are locked
 
     // If no time lock, then calculate how much is unlocked according to the vesting rules.
-    if(transferRules[from].vestingMonths > 0) {
-      uint vestingStart = activationTime + secondsLocked;
-      uint unlockedSlices = 0;
-      for(uint i = 0; i < transferRules[from].vestingMonths; i++) {
-        if(block.timestamp >= (vestingStart + (i * 30 days))) {
-          unlockedSlices++;
-        }
-      }
-      // If all months are vested, return 0 to ensure all tokens are sent back
-      if(transferRules[from].vestingMonths == unlockedSlices) {
-        return 0;
-      }
+    uint256 vestingStart = activationTime + secondsLocked;
+    uint256 unlockedSlices = 0;
 
-      // Send back the amount of locked tokens
-      return (transferRules[from].tokens - ((transferRules[from].tokens / transferRules[from].vestingMonths) * unlockedSlices));
+    for (uint256 i = 0; i < transferRules[from].vestingMonths; i++) {
+      if (block.timestamp < (vestingStart + (i * 30 days))) continue;
+
+      unlockedSlices++;
     }
 
-    // No tokens are locked
-    return 0;
+    // If all months are vested, return 0 to ensure all tokens are sent back
+    if (transferRules[from].vestingMonths == unlockedSlices) return 0;
+
+    // Send back the amount of locked tokens
+    return (transferRules[from].tokens - ((transferRules[from].tokens / transferRules[from].vestingMonths) * unlockedSlices));
   }
 
-  // The contract enforces all vesting and locking rules as desribed on https://attrace.com/community/attr-token/#distribution
+  // The contract enforces all vesting and locking rules as described on https://attrace.com/community/attr-token/#distribution
   // We don't lock tokens into another contract, we keep them allocated to the respective account, but with a locking rule on top of it.
   // When the last vesting rule expires, checking the vesting rules is ignored automatically and overall gas off the transfers lowers with an SLOAD cost.
   function setTransferRule(address addr, TransferRule calldata rule) public {
@@ -157,12 +147,16 @@ contract ATTRToken is ERC20Upgradeable {
     require(_wlController == msg.sender); // Only the whitelist controller can set rules before listing
 
     // Validate the rule
+    // Either there are outbound rules or there are vesting/lock times
     require(
-      // Either a rule has a token vesting/lock
-      (rule.tokens > 0 && (rule.vestingMonths > 0 || rule.timeLockMonths > 0))
-      // And/or it has an outbound rule
-      || (rule.outboundTimeLockMonths > 0 || rule.outboundVestingMonths > 0), 
-      "invalid rule");
+      rule.outboundTimeLockMonths > 0 ||
+      rule.outboundVestingMonths > 0 ||
+      (
+        rule.tokens > 0 &&
+        (rule.vestingMonths > 0 || rule.timeLockMonths > 0)
+      ),
+      "invalid rule"
+    );
 
     // Store the rule
     // Rules are allowed to have an empty activationTime, then listing moment will be used as activation time.
@@ -175,4 +169,5 @@ contract ATTRToken is ERC20Upgradeable {
   function getLockedTokens(address addr) public view returns (uint256) {
     return calcBalanceLocked(addr);
   }
+
 }
